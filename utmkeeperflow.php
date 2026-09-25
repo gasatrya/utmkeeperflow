@@ -1,5 +1,11 @@
 <?php
 /**
+ * UTM Keeper plugin bootstrap.
+ *
+ * @package UTMKeeperFlow
+ */
+
+/**
  * Plugin Name: UTM Keeper
  * Description: Preserve campaign parameters and pass them to selected conversion links.
  * Version: 0.1.0
@@ -14,15 +20,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/** Plugin version used for the frontend asset. */
+define( 'UTMKEEPERFLOW_VERSION', '0.1.0' );
+
+/** Public configuration schema version, independent of the plugin version. */
+define( 'UTMKEEPERFLOW_CONFIG_VERSION', 1 );
+
+/** Option name reserved for the upcoming Settings API implementation. */
+define( 'UTMKEEPERFLOW_SETTINGS_OPTION', 'utmkeeperflow_settings' );
+
 /**
- * Load the browser script only after an administrator has enabled the plugin.
+ * Return the public configuration defaults until validated settings are available.
  *
- * Settings, capture, and forwarding will be added in the linked MVP issues.
+ * The Settings API implementation will replace these fixed values with sanitized
+ * public settings; never expose the complete stored options array to visitors.
+ *
+ * @return array<string, int|array<string>> Frontend configuration.
+ */
+function utmkeeperflow_get_public_config() {
+	return array(
+		'version'       => UTMKEEPERFLOW_CONFIG_VERSION,
+		'parameters'    => array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' ),
+		'domains'       => array(),
+		'retentionDays' => 30,
+	);
+}
+
+/**
+ * Enqueue the inert frontend scaffold only when explicitly enabled.
+ *
+ * @return void
  */
 function utmkeeperflow_enqueue_frontend() {
-	$options = get_option( 'utmkeeperflow_settings', array() );
+	$options = get_option( UTMKEEPERFLOW_SETTINGS_OPTION, array() );
 
-	if ( ! is_array( $options ) || empty( $options['enabled'] ) ) {
+	if ( ! is_array( $options ) || ! isset( $options['enabled'] ) || '1' !== $options['enabled'] ) {
 		return;
 	}
 
@@ -31,22 +63,15 @@ function utmkeeperflow_enqueue_frontend() {
 		$handle,
 		plugins_url( 'assets/js/utm-keeper.js', __FILE__ ),
 		array(),
-		'0.1.0',
+		UTMKEEPERFLOW_VERSION,
 		true
 	);
 
-	// Only fixed defaults are exposed until the settings validation is implemented.
-	$config = array(
-		'parameters'    => array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' ),
-		'domains'       => array(),
-		'retentionDays' => 30,
-	);
+	$config_json = wp_json_encode( utmkeeperflow_get_public_config(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	if ( false === $config_json || ! wp_add_inline_script( $handle, 'window.utmKeeperFlowConfig = ' . $config_json . ';', 'before' ) ) {
+		return;
+	}
 
-	wp_add_inline_script(
-		$handle,
-		'window.utmKeeperFlowConfig = ' . wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) . ';',
-		'before'
-	);
 	wp_enqueue_script( $handle );
 }
 add_action( 'wp_enqueue_scripts', 'utmkeeperflow_enqueue_frontend' );

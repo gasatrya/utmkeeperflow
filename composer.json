@@ -1,0 +1,19 @@
+{
+    "name": "gasatrya/utmkeeperflow",
+    "description": "Development-only WordPress Coding Standards tooling for UTM Keeper",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "wp-coding-standards/wpcs": "^3.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "lint": "@php -l utmkeeperflow.php",
+        "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist"
+    }
+}

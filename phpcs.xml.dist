@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ruleset name="UTM Keeper">
+    <description>WordPress Coding Standards for plugin PHP source.</description>
+    <file>.</file>
+    <arg name="extensions" value="php"/>
+    <config name="text_domain" value="utmkeeperflow"/>
+    <config name="minimum_supported_wp_version" value="6.0"/>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <!-- The standalone PHP test harness uses WordPress function shims, not plugin code. -->
+    <exclude-pattern>tests/*</exclude-pattern>
+    <rule ref="WordPress"/>
+</ruleset>
