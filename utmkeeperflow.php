@@ -268,7 +268,7 @@ function utmkeeperflow_field_enabled() {
 	?>
 	<label for="utmkeeperflow_enabled">
 		<input id="utmkeeperflow_enabled" type="checkbox" name="<?php echo esc_attr( UTMKEEPERFLOW_SETTINGS_OPTION ); ?>[enabled]" value="1" <?php checked( '1', $settings['enabled'] ); ?> />
-		<?php esc_html_e( 'Enable the frontend scaffold (capture and forwarding are not implemented yet).', 'utmkeeperflow' ); ?>
+		<?php esc_html_e( 'Capture configured campaign parameters in this browser. Link forwarding is not implemented yet.', 'utmkeeperflow' ); ?>
 	</label>
 	<?php
 }
@@ -315,12 +315,12 @@ function utmkeeperflow_field_retention() {
 	$settings = utmkeeperflow_get_settings();
 	?>
 	<input id="utmkeeperflow_retention" name="<?php echo esc_attr( UTMKEEPERFLOW_SETTINGS_OPTION ); ?>[retention_days]" type="number" min="1" max="90" step="1" value="<?php echo esc_attr( $settings['retention_days'] ); ?>" />
-	<p class="description"><?php esc_html_e( 'From 1 to 90 days; default 30. No browser storage is used by the current scaffold.', 'utmkeeperflow' ); ?></p>
+	<p class="description"><?php esc_html_e( 'From 1 to 90 days; default 30. Browser-local campaign data expires this many days after capture.', 'utmkeeperflow' ); ?></p>
 	<?php
 }
 
 /**
- * Enqueue the inert frontend scaffold only when explicitly enabled.
+ * Enqueue browser-local campaign capture only when explicitly enabled.
  *
  * @return void
  */

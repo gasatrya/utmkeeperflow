@@ -190,9 +190,10 @@ check( $defaults === utmkeeperflow_normalize_settings( 'invalid' ), 'Malformed o
 
 foreach ( array( null, array(), 'invalid', array( 'enabled' => '0' ), array( 'enabled' => true ), array( 'enabled' => 1 ) ) as $options ) {
 	$calls['register'] = null;
+	$calls['inline']   = null;
 	$calls['enqueue']  = null;
 	utmkeeperflow_enqueue_frontend();
-	check( null === $calls['register'] && null === $calls['enqueue'], 'Disabled or malformed settings must not enqueue a script' );
+	check( null === $calls['register'] && null === $calls['inline'] && null === $calls['enqueue'], 'Disabled or malformed settings must not register, configure, or enqueue capture' );
 }
 
 $options = $input;
