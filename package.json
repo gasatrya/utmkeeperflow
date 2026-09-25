@@ -1,0 +1,12 @@
+{
+  "name": "utmkeeperflow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dependency-free JavaScript checks for the UTM Keeper WordPress plugin",
+  "scripts": {
+    "test": "node --test tests/js/*.test.cjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
