@@ -222,6 +222,7 @@ utmkeeperflow_field_parameters();
 utmkeeperflow_field_retention();
 $controls = ob_get_clean();
 check( false === strpos( $controls, 'checked="checked"' ), 'Unchecked saved controls should not render checked' );
+check( false !== strpos( $controls, 'forward them on eligible link activation' ), 'Enable guidance must describe forwarding' );
 check( false !== strpos( $controls, 'min="1" max="90"' ), 'Retention bounds missing from control' );
 ob_start();
 utmkeeperflow_field_domains();

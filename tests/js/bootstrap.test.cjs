@@ -32,19 +32,60 @@ function browserStorage(initial) {
 }
 
 function visit(storage, search = '', now = start, settings = config) {
-	const window = { utmKeeperFlowConfig: settings, location: { search }, localStorage: storage };
+	const listeners = {};
+	const timers = [];
+	const document = {
+		addEventListener(type, handler) { listeners[type] = handler; },
+		dispatch(type, target, button = 0) {
+			const event = { type, target, button, defaultPrevented: false,
+				preventDefault() { this.defaultPrevented = true; } };
+			listeners[type](event);
+			event.navigatedHref = target.link.href;
+			for (const callback of timers.splice(0)) callback();
+			return event;
+		},
+	};
+	const window = {
+		utmKeeperFlowConfig: settings,
+		location: { search, href: `https://shop.example.test/page${search}`, hostname: 'shop.example.test' },
+		localStorage: storage,
+	};
 	const forbidden = new Proxy({}, {
 		get() { throw new Error('Unrelated browser API was inspected'); },
 		set() { throw new Error('Unrelated browser API was changed'); },
 	});
 	assert.doesNotThrow(() => vm.runInNewContext(script, {
 		window,
+		URL,
 		URLSearchParams,
 		Date: { now: () => now },
-		document: forbidden,
+		setTimeout(callback, delay) { assert.equal(delay, 0); timers.push(callback); },
+		document,
 		fetch: forbidden,
 		XMLHttpRequest: forbidden,
 	}));
+	return document;
+}
+
+function anchor(href, marked = false, download = false) {
+	const link = {
+		href,
+		closest(selector) { return selector === 'a[href]' ? this : null; },
+		getAttribute(name) { return name === 'href' ? this.href : null; },
+		setAttribute(name, value) { assert.equal(name, 'href'); this.href = value; },
+		hasAttribute(name) { return name === 'download' && download; },
+		classList: { contains(name) { return name === 'utm-keeper' && marked; } },
+	};
+	return link;
+}
+
+function activate(document, link, type = 'click', button = 0) {
+	const original = link.href;
+	const child = { link, closest(selector) { return link.closest(selector); } };
+	const event = document.dispatch(type, child, button);
+	assert.equal(event.defaultPrevented, false);
+	assert.equal(link.href, original, 'Activated link must be restored after navigation');
+	return event.navigatedHref;
 }
 
 function record(storage) {
@@ -54,7 +95,7 @@ function record(storage) {
 
 test('absent, obsolete or invalid configuration never accesses location or storage', () => {
 	const throwingParameters = { version: 1, get parameters() { throw new Error('bad config'); } };
-	for (const settings of [undefined, { ...config, version: 2 }, { ...config, parameters: ['custom'] }, { ...config, retentionDays: 91 }, throwingParameters]) {
+	for (const settings of [undefined, { ...config, version: 2 }, { ...config, parameters: ['custom'] }, { ...config, domains: ['*.example.test'] }, { ...config, domains: 'example.test' }, { ...config, retentionDays: 91 }, throwingParameters]) {
 		const window = { utmKeeperFlowConfig: settings };
 		Object.defineProperty(window, 'localStorage', { get() { throw new Error('storage read'); } });
 		Object.defineProperty(window, 'location', { get() { throw new Error('location read'); } });
@@ -157,4 +198,114 @@ test('storage getter, read, removal and write failures do not throw or leave sta
 			assert.equal(record(storage).values.utm_source, 'stale');
 		}
 	}
+});
+
+test('only exact configured external HTTPS hosts or marked links receive stored configured keys', () => {
+	const storage = browserStorage();
+	const document = visit(storage, '?utm_source=mail&utm_campaign=launch', start, { ...config, domains: ['bookings.example.test'] });
+	const eligible = [
+		'https://bookings.example.test/path',
+		'https://BOOKINGS.EXAMPLE.TEST/path',
+		'https://bookings.example.test:8443/path',
+	];
+	for (const href of eligible) {
+		const link = anchor(href);
+		assert.equal(activate(document, link), `${href}?utm_source=mail&utm_campaign=launch`);
+	}
+	const marked = anchor('https://other.example.test/convert', true);
+	assert.equal(activate(document, marked), 'https://other.example.test/convert?utm_source=mail&utm_campaign=launch');
+	for (const href of [
+		'https://bookings.example.test.evil.test/', 'https://fakebookings.example.test/',
+		'https://shop.example.test/inside', 'https://shop.example.test:8443/inside',
+		'https://other.example.test/not-marked',
+	]) {
+		const link = anchor(href);
+		assert.equal(activate(document, link), href, `Unexpected forwarding to ${href}`);
+	}
+});
+
+test('no destination is targeted by default; class marking is an explicit opt-in', () => {
+	const document = visit(browserStorage(), '?utm_source=mail');
+	const plain = anchor('https://bookings.example.test/');
+	assert.equal(activate(document, plain), 'https://bookings.example.test/');
+	const marked = anchor('https://bookings.example.test/', true);
+	assert.equal(activate(document, marked), 'https://bookings.example.test/?utm_source=mail');
+});
+
+test('destination query wins, including empty and duplicate keys; original URL bytes and fragment remain', () => {
+	const document = visit(browserStorage(), '?utm_source=stored&utm_campaign=launch', start, { ...config, domains: ['bookings.example.test'] });
+	const link = anchor('https://bookings.example.test/A%2fb?utm_source=&utm_source=other&x=%2f+%20#part?x=1');
+	assert.equal(activate(document, link), 'https://bookings.example.test/A%2fb?utm_source=&utm_source=other&x=%2f+%20&utm_campaign=launch#part?x=1');
+	assert.equal(activate(document, link), 'https://bookings.example.test/A%2fb?utm_source=&utm_source=other&x=%2f+%20&utm_campaign=launch#part?x=1', 'Second activation should not duplicate forwarded values');
+	const encoded = anchor('https://bookings.example.test/?utm%5Fcampaign=existing#end');
+	assert.equal(activate(document, encoded), 'https://bookings.example.test/?utm%5Fcampaign=existing&utm_source=stored#end');
+	const bare = anchor('https://bookings.example.test/path?#frag');
+	assert.equal(activate(document, bare), 'https://bookings.example.test/path?utm_source=stored&utm_campaign=launch#frag');
+});
+
+test('delegated ordinary and middle clicks handle links created after initialization', () => {
+	const document = visit(browserStorage(), '?utm_source=mail', start, { ...config, domains: ['bookings.example.test'] });
+	const later = anchor('https://bookings.example.test/checkout');
+	assert.equal(activate(document, later, 'auxclick', 1), 'https://bookings.example.test/checkout?utm_source=mail');
+	const ignored = anchor('https://bookings.example.test/checkout');
+	assert.equal(activate(document, ignored, 'auxclick', 2), ignored.href);
+	assert.equal(activate(document, ignored, 'click', 1), ignored.href);
+	assert.equal(activate(document, ignored), 'https://bookings.example.test/checkout?utm_source=mail');
+});
+
+test('restored links use only current, unexpired attribution on repeated activations', () => {
+	const storage = browserStorage();
+	const document = visit(storage, '?utm_source=first', start, { ...config, domains: ['bookings.example.test'] });
+	const link = anchor('https://bookings.example.test/checkout#done');
+	assert.equal(activate(document, link), 'https://bookings.example.test/checkout?utm_source=first#done');
+	storage.items.set(key, JSON.stringify({ version: 1, values: { utm_campaign: 'second' }, expiresAt: start + day }));
+	assert.equal(activate(document, link, 'auxclick', 1), 'https://bookings.example.test/checkout?utm_campaign=second#done');
+	storage.items.set(key, JSON.stringify({ version: 1, values: { utm_source: 'expired' }, expiresAt: start }));
+	assert.equal(activate(document, link), 'https://bookings.example.test/checkout#done');
+	assert.equal(storage.items.has(key), false);
+});
+
+test('class or configured host cannot bypass HTTPS, external, credential, URL or download restrictions', () => {
+	const document = visit(browserStorage(), '?utm_source=mail', start, { ...config, domains: ['bookings.example.test'] });
+	for (const href of [
+		'http://bookings.example.test/', 'javascript:alert(1)', 'mailto:test@example.test',
+		'/internal', 'https://shop.example.test/internal', 'https://user:pass@bookings.example.test/',
+		'https://user@bookings.example.test/', 'https://[invalid',
+	]) {
+		const link = anchor(href, true);
+		assert.equal(activate(document, link), href, `Unsafe marked URL changed: ${href}`);
+	}
+	for (const marked of [false, true]) {
+		const link = anchor('https://bookings.example.test/file', marked, true);
+		assert.equal(activate(document, link), 'https://bookings.example.test/file');
+	}
+});
+
+test('missing, invalid, expired or unavailable storage leaves links and native navigation alone', () => {
+	const href = 'https://bookings.example.test/#buy';
+	const settings = { ...config, domains: ['bookings.example.test'] };
+	for (const raw of [undefined, '{', JSON.stringify({ version: 1, values: { utm_source: 'old' }, expiresAt: start })]) {
+		const storage = browserStorage();
+		const document = visit(storage, '', start, settings);
+		if (raw !== undefined) storage.items.set(key, raw);
+		assert.equal(activate(document, anchor(href)), href);
+		assert.equal(storage.items.has(key), false);
+	}
+	const blocked = browserStorage();
+	blocked.getItem = () => { throw new Error('SecurityError'); };
+	const document = visit(blocked, '?utm_source=mail', start, settings);
+	assert.equal(activate(document, anchor(href)), href);
+	const laterBlocked = browserStorage();
+	const beforeClick = visit(laterBlocked, '?utm_source=mail', start, settings);
+	laterBlocked.getItem = () => { throw new Error('SecurityError'); };
+	assert.equal(activate(beforeClick, anchor(href)), href, 'Storage blocked after capture must not disrupt navigation');
+	const stale = browserStorage(JSON.stringify({ version: 1, values: { utm_source: 'old' }, expiresAt: start + day }));
+	stale.removeItem = () => { throw new Error('SecurityError'); };
+	const failed = visit(stale, '?utm_source=new', start, settings);
+	assert.equal(activate(failed, anchor(href)), href, 'Failed capture cannot forward stale storage');
+	const removeBlocked = browserStorage();
+	const onClick = visit(removeBlocked, '', start, settings);
+	removeBlocked.items.set(key, '{');
+	removeBlocked.removeItem = () => { throw new Error('SecurityError'); };
+	assert.equal(activate(onClick, anchor(href)), href, 'Failed removal during activation must not forward');
 });

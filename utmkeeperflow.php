@@ -268,7 +268,7 @@ function utmkeeperflow_field_enabled() {
 	?>
 	<label for="utmkeeperflow_enabled">
 		<input id="utmkeeperflow_enabled" type="checkbox" name="<?php echo esc_attr( UTMKEEPERFLOW_SETTINGS_OPTION ); ?>[enabled]" value="1" <?php checked( '1', $settings['enabled'] ); ?> />
-		<?php esc_html_e( 'Capture configured campaign parameters in this browser. Link forwarding is not implemented yet.', 'utmkeeperflow' ); ?>
+		<?php esc_html_e( 'Capture configured campaign parameters in this browser and forward them on eligible link activation.', 'utmkeeperflow' ); ?>
 	</label>
 	<?php
 }
@@ -320,7 +320,7 @@ function utmkeeperflow_field_retention() {
 }
 
 /**
- * Enqueue browser-local campaign capture only when explicitly enabled.
+ * Enqueue browser-local campaign capture and link forwarding only when enabled.
  *
  * @return void
  */
