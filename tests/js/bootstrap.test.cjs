@@ -36,8 +36,8 @@ function visit(storage, search = '', now = start, settings = config) {
 	const timers = [];
 	const document = {
 		addEventListener(type, handler) { listeners[type] = handler; },
-		dispatch(type, target, button = 0) {
-			const event = { type, target, button, defaultPrevented: false,
+		dispatch(type, target, button = 0, detail = 1) {
+			const event = { type, target, button, detail, defaultPrevented: false,
 				preventDefault() { this.defaultPrevented = true; } };
 			listeners[type](event);
 			event.navigatedHref = target.link.href;
@@ -79,10 +79,10 @@ function anchor(href, marked = false, download = false) {
 	return link;
 }
 
-function activate(document, link, type = 'click', button = 0) {
+function activate(document, link, type = 'click', button = 0, detail = 1) {
 	const original = link.href;
 	const child = { link, closest(selector) { return link.closest(selector); } };
-	const event = document.dispatch(type, child, button);
+	const event = document.dispatch(type, child, button, detail);
 	assert.equal(event.defaultPrevented, false);
 	assert.equal(link.href, original, 'Activated link must be restored after navigation');
 	return event.navigatedHref;
@@ -251,6 +251,12 @@ test('delegated ordinary and middle clicks handle links created after initializa
 	assert.equal(activate(document, ignored, 'auxclick', 2), ignored.href);
 	assert.equal(activate(document, ignored, 'click', 1), ignored.href);
 	assert.equal(activate(document, ignored), 'https://bookings.example.test/checkout?utm_source=mail');
+});
+
+test('keyboard-generated click forwards without canceling native activation', () => {
+	const document = visit(browserStorage(), '?utm_source=mail', start, { ...config, domains: ['bookings.example.test'] });
+	const link = anchor('https://bookings.example.test/pay#step');
+	assert.equal(activate(document, link, 'click', 0, 0), 'https://bookings.example.test/pay?utm_source=mail#step');
 });
 
 test('restored links use only current, unexpired attribution on repeated activations', () => {

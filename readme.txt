@@ -1,6 +1,7 @@
 === UTM Keeper ===
 Tags: utm, attribution, campaigns, links, marketing
 Requires at least: 6.0
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 0.1.0
 License: GPLv2 or later
@@ -26,7 +27,7 @@ Campaign parameters can contain personal data. Forwarded URLs may be logged by d
 
 For testing or to start fresh, use the "Clear attribution in this browser" button under Settings > UTM Keeper. It removes only this plugin's localStorage record for the current browser profile and the admin page's origin; it does not change saved settings, unrelated site data, or other visitors' browsers. The button works even when the plugin is disabled, and reports if browser storage is unavailable. If the public site uses a different protocol, hostname, or port from the admin page, its storage is separate and this button cannot clear it. On that public site's origin, you can instead run `localStorage.removeItem('utmkeeperflow_attribution')` in the browser console. Visiting a campaign URL again after reset can capture fresh attribution.
 
-Automated JavaScript and PHP shim checks cover the described behavior and settings contract. Live WordPress integration and Plugin Check verification remain pending; no WordPress "Tested up to" claim is made yet.
+Automated JavaScript and PHP shim checks cover the described behavior and settings contract. Local integration was exercised on WordPress 7.1.2 with PHP 8.2.29; the "Tested up to" header reflects only the locally verified WordPress 7.1 line. See the release-verification notes in the repository for the matrix and Plugin Check scope. Compatibility with other WordPress/PHP versions is not established by this single environment.
 
 == Installation ==
 
