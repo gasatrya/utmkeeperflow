@@ -7,9 +7,11 @@
 
 define( 'ABSPATH', __DIR__ . '/' );
 
-$options   = null;
-$calls     = array();
-$can_admin = true;
+$options            = null;
+$calls              = array();
+$can_admin          = true;
+$translated_texts   = array();
+$inject_translation = false;
 
 function add_action( $hook, $callback ) {
 	global $calls;
@@ -48,7 +50,12 @@ function add_settings_error( ...$args ) {
 }
 
 function __( $text, $domain ) {
+	global $translated_texts, $inject_translation;
 	check( 'utmkeeperflow' === $domain, 'Wrong text domain' );
+	$translated_texts[] = $text;
+	if ( $inject_translation && 0 === strpos( $text, 'Campaign values may contain personal data' ) ) {
+		return '<script>alert("translation")</script>';
+	}
 	return $text;
 }
 
@@ -240,6 +247,22 @@ ob_start();
 utmkeeperflow_render_settings_page();
 $html = ob_get_clean();
 check( false !== strpos( $html, 'action="options.php"' ), 'Form must submit to WordPress options.php' );
+check( false !== strpos( $html, 'Disabled by default.' ) && false !== strpos( $html, 'whole' ) && false !== strpos( $html, 'fixed expiry' ), 'Settings help must explain default and last-touch expiry' );
+check( false !== strpos( $html, 'external HTTPS links' ) && false !== strpos( $html, 'utm-keeper class' ), 'Settings help must explain exact-host and class targeting' );
+check( false !== strpos( $html, 'may contain personal data' ) && false !== strpos( $html, 'may log forwarded URLs' ) && false !== strpos( $html, 'privacy and consent requirements' ), 'Settings help must warn about privacy responsibilities' );
+check( false !== strpos( $html, 'No external plugin service or account is required' ), 'Settings help must not suggest an external dependency' );
+check( false !== strpos( $html, "localStorage.removeItem('utmkeeperflow_attribution')" ) && false !== strpos( $html, 'No reset button is available' ) && false !== strpos( $html, "other visitors&#039; browsers" ), 'Settings help must accurately scope manual browser-local reset' );
+foreach ( array( 'Disabled by default.', 'Campaign values may contain personal data', 'No reset button is available.' ) as $help_start ) {
+	check( 1 === count( array_filter( $translated_texts, static function ( $text ) use ( $help_start ) {
+		return 0 === strpos( $text, $help_start );
+	} ) ), 'Settings help must be translatable in the plugin text domain' );
+}
+$inject_translation = true;
+ob_start();
+utmkeeperflow_render_settings_page();
+$translated_html = ob_get_clean();
+check( false !== strpos( $translated_html, '&lt;script&gt;alert(&quot;translation&quot;)&lt;/script&gt;' ) && false === strpos( $translated_html, '<script>' ), 'Translated help must be escaped' );
+$inject_translation = false;
 check( 'utmkeeperflow' === $calls['nonce_group'], 'Settings API nonce missing' );
 check( 'utmkeeperflow' === $calls['render_sections'], 'Settings controls not rendered via Settings API' );
 check( true === $calls['display_errors'], 'Validation feedback must be displayed' );

@@ -246,6 +246,9 @@ function utmkeeperflow_render_settings_page() {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'UTM Keeper', 'utmkeeperflow' ); ?></h1>
+		<p><?php esc_html_e( 'Disabled by default. When enabled, valid selected campaign values replace the whole previous browser-local set on a new campaign visit. Visits without valid selected values keep the set until its fixed expiry. Only eligible external HTTPS links to exact configured hostnames or links marked with the utm-keeper class receive missing values when clicked.', 'utmkeeperflow' ); ?></p>
+		<p><?php esc_html_e( 'Campaign values may contain personal data, and destination servers may log forwarded URLs. Enabling this plugin does not provide consent or ensure privacy compliance; site owners are responsible for their own privacy and consent requirements. No external plugin service or account is required.', 'utmkeeperflow' ); ?></p>
+		<p><?php esc_html_e( 'No reset button is available. To clear attribution only for this site in your current browser, run the following in the browser console on this site; this does not clear other visitors\' browsers or change saved settings:', 'utmkeeperflow' ); ?> <code>localStorage.removeItem('utmkeeperflow_attribution')</code></p>
 		<?php settings_errors(); ?>
 		<form action="options.php" method="post">
 			<?php
