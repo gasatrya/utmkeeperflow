@@ -22,7 +22,7 @@ Tracked via GitHub native sub-issues.
 - [ ] Plugin is inert on the frontend until enabled and does not append to unconfigured links.
 - [ ] Configured parameters persist across page visits until expiry and reach only qualifying conversion links; destination values win conflicts.
 - [ ] Malformed data, storage failure, unsafe URLs, and unsupported links fail safely.
-- [ ] All child issues are complete; automated tests, WordPress integration checks, and user-facing privacy documentation agree with shipped behavior.
+- [ ] All child issues are complete; WordPress Coding Standards, Plugin Check, automated tests, accessibility/translation checks, WordPress integration, and user-facing privacy documentation agree with shipped behavior.
 
 ## Dependencies and risks
 Implement bootstrap and configuration before capture/forwarding; integration is the final gate. URL parameters can contain personal information; enabling this plugin is not a consent solution. Do not add a network or server-side analytics component.
@@ -38,7 +38,7 @@ The repository begins with product documents only. The plugin must remain inert 
 ## Scope
 - Add guarded WordPress plugin header/entry point and a stable version/configuration contract.
 - Establish an asset structure for dependency-free browser JS and conditional frontend enqueue when enabled.
-- Establish minimal JS test runner, PHP lint commands, and a local WordPress smoke-test procedure.
+- Establish minimal JS test runner, PHP lint commands, development-only PHPCS/WordPress Coding Standards tooling, and a local WordPress smoke-test procedure.
 
 ## Out of scope
 Full settings UI, campaign persistence, link decoration.
@@ -47,7 +47,8 @@ Full settings UI, campaign persistence, link decoration.
 - [ ] WordPress recognizes and activates the plugin without PHP notices, and direct PHP file access is guarded.
 - [ ] No frontend script runs while disabled; when enabled, public configuration is passed to a versioned asset safely.
 - [ ] `php -l` checks pass; `node --test` runs a baseline test without third-party dependencies.
-- [ ] The bootstrap remains compatible with the Settings API implementation without visitor data stored in WordPress.
+- [ ] PHP uses prefixed names, appropriate WordPress APIs, correct plugin metadata/text domain, and no visitor data stored in WordPress.
+- [ ] WordPress Coding Standards checks are runnable as documented development tooling, with justified exclusions recorded.
 
 ## Dependencies
 None.
@@ -69,6 +70,7 @@ Campaign parsing, capture, or link mutation.
 - [ ] Unauthorized users cannot change settings; output is escaped and invalid parameter names/hostnames are rejected.
 - [ ] Empty destination list and default-off state leave all frontend links untouched.
 - [ ] Saved values survive reload; reset clears only local browser attribution, not other visitors' data.
+- [ ] Administrator UI is keyboard-accessible and translatable with the `utmkeeperflow` text domain; rendered values are escaped at output.
 - [ ] Validation/defaults are covered by tests or a documented WordPress test matrix.
 
 ## Dependencies
@@ -131,7 +133,8 @@ Users can configure and understand the shipped plugin and its privacy implicatio
 Privacy-policy automation, consent banner, analytics documentation, and speculative integrations.
 
 ## Acceptance criteria
-- [ ] User-facing text matches verified behavior and contains no guarantee that attribution values are nonpersonal or compliant by default.
+- [ ] `readme.txt` follows WordPress plugin-directory format and accurately documents requirements, licensing, and tested behavior.
+- [ ] User-facing text is translatable where rendered by WordPress, matches verified behavior, and contains no guarantee that attribution values are nonpersonal or compliant by default.
 - [ ] No external service/account is required; limitations and browser-local reset scope are explicit.
 
 ## Dependencies
@@ -145,13 +148,14 @@ The MVP is verified in a local WordPress site and ready for release review.
 ## Scope
 - Check activation/deactivation, permissions, saved settings, disabled-state asset loading, and multi-page capture/forwarding.
 - Exercise fragments, existing destination parameters, unsafe destinations, blocked storage, expiration, dynamically inserted links, keyboard activation, and middle clicks.
-- Run JS tests and PHP lint; record the manual WordPress matrix and failures/fixes on the issue.
+- Run JS tests, PHP lint, PHPCS with WordPress Coding Standards, and WordPress Plugin Check; record the manual WordPress matrix and failures/fixes on the issue.
 
 ## Out of scope
 New feature development, analytics, and third-party service integration.
 
 ## Acceptance criteria
-- [ ] Automated checks pass and test commands/results are recorded.
+- [ ] Automated checks, PHPCS/WordPress Coding Standards, and Plugin Check pass, or justified tool warnings are documented with a release decision.
+- [ ] Settings UI keyboard access, labels, and translations are checked; test commands/results are recorded.
 - [ ] Manual checks in a local WordPress environment pass or any remaining limitations are documented before release.
 - [ ] No unexpected frontend requests, server-side visitor records, or changes to unrelated links occur.
 

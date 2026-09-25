@@ -15,23 +15,30 @@ Preserve configured campaign parameters in the visitor's browser and forward the
 - Settings belong under **Settings → UTM Keeper** and require `manage_options`; sanitize a fixed parameter allowlist, hostname list, and retention value using WordPress Settings API. A reset control clears attribution **only in the current administrator's browser**.
 - No analytics, cookies, external tracking service, custom parameters, or consent-management feature. Documentation must note that campaign values can contain personal data and forwarded URLs may be logged by destinations; site owners are responsible for applicable privacy obligations.
 
+## WordPress standards
+
+- Follow WordPress Coding Standards and use WordPress APIs for settings, capabilities, nonces, script enqueueing, and translations rather than custom equivalents.
+- Sanitize and validate input, escape output at rendering, prefix PHP names and stored options, and guard direct file access. Keep settings restricted to authorized administrators.
+- Make administrator UI accessible and translatable (`utmkeeperflow` text domain); follow WordPress plugin-directory requirements for the eventual release, including an accurate `readme.txt` and licensing metadata.
+- Add WordPress Coding Standards linting (PHPCS with WPCS as development tooling) and WordPress Plugin Check/release review before distribution; document any justified exceptions. No runtime Composer or npm dependency is required.
+
 ## Architecture and delivery
 
 Keep the runtime lightweight: guarded WordPress PHP bootstrap + Settings API class + dependency-free vanilla JS. Send only sanitized public configuration to the frontend and load the script only when enabled. Keep capture/storage and URL-decorating logic separable for tests. Avoid frontend requests to the server. Use Node's built-in test runner for JS; add PHP lint and WordPress settings/integration checks where a WordPress test environment is available.
 
-1. **Plugin bootstrap and test foundation** — plugin header, guarded loading, conditional frontend asset registration/enqueue, configuration contract, minimum JS test harness and documented checks. No dependencies.
+1. **Plugin bootstrap and test foundation** — plugin header, guarded loading, conditional frontend asset registration/enqueue, configuration contract, minimum JS test harness and documented checks. Set up development-only WordPress Coding Standards checks; no runtime dependencies.
 2. **Administrator settings** — enable switch, parameter checkboxes, exact hostnames, retention, validation, and browser-local reset. Depends on 1.
 3. **Capture/storage** — selected-key parsing, last-touch replacement, versioned record, expiration and storage failures. Depends on 1 and the configuration contract from 2.
 4. **Targeted link forwarding** — exact-host/class matching, delegated ordinary/middle clicks, safe URL construction and destination-key precedence. Depends on 2 and 3.
 5. **Privacy and user documentation** — WordPress readme and settings guidance reflecting tested behavior; can proceed in parallel once behavior is settled.
-6. **Integration and release verification** — local WordPress smoke tests, permissions, settings, multi-page capture/forwarding, edge cases, and documented results. Depends on 1–5.
+6. **Integration and release verification** — local WordPress smoke tests, permissions, settings, multi-page capture/forwarding, edge cases, accessibility/translation checks, coding-standards checks, Plugin Check, and documented results. Depends on 1–5.
 
 ## Completion criteria
 
 - Plugin activates without warnings and does nothing on the frontend while disabled.
 - Once enabled, configured campaign data persists only until its expiry and reaches only qualifying destinations without overwriting their existing parameters.
 - Invalid/unsupported URLs, disabled storage, malformed records, and unconfigured links do not leak stale data or break navigation.
-- Automated checks and manual WordPress verification pass; user-facing documentation matches the shipped behavior.
+- Automated checks, WordPress Coding Standards, Plugin Check, and manual WordPress verification pass (or justified tool warnings are documented); user-facing documentation matches the shipped behavior.
 
 ## Preparation scaffold boundary
 
