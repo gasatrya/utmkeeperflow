@@ -56,6 +56,9 @@ function __( $text, $domain ) {
 	if ( $inject_translation && 0 === strpos( $text, 'Campaign values may contain personal data' ) ) {
 		return '<script>alert("translation")</script>';
 	}
+	if ( $inject_translation && 0 === strpos( $text, 'UTM Keeper attribution was cleared' ) ) {
+		return '" onfocus="alert(1)';
+	}
 	return $text;
 }
 
@@ -130,9 +133,10 @@ function wp_add_inline_script( ...$args ) {
 	return true;
 }
 
-function wp_enqueue_script( $handle ) {
+function wp_enqueue_script( $handle, ...$args ) {
 	global $calls;
-	$calls['enqueue'] = $handle;
+	$calls['enqueue']      = $handle;
+	$calls['enqueue_args'] = $args;
 }
 
 function check( $condition, $message ) {
@@ -156,6 +160,17 @@ check( array( 'utmkeeperflow_enabled', 'utmkeeperflow_parameters', 'utmkeeperflo
 utmkeeperflow_add_settings_page();
 check( 'manage_options' === $calls['page'][2], 'Settings page is not restricted' );
 check( 'utmkeeperflow_render_settings_page' === $calls['page'][4], 'Wrong page renderer' );
+check( 'utmkeeperflow_enqueue_admin_reset' === $calls['hooks']['admin_enqueue_scripts'], 'Admin reset hook missing' );
+$calls['enqueue'] = null;
+utmkeeperflow_enqueue_admin_reset( 'dashboard' );
+check( null === $calls['enqueue'], 'Admin reset script must not load on unrelated pages' );
+$can_admin = false;
+utmkeeperflow_enqueue_admin_reset( 'settings_page_utmkeeperflow' );
+check( null === $calls['enqueue'], 'Admin reset script must require manage_options' );
+$can_admin = true;
+utmkeeperflow_enqueue_admin_reset( 'settings_page_utmkeeperflow' );
+check( 'utmkeeperflow-admin-reset' === $calls['enqueue'], 'Reset script must load on settings page even while disabled' );
+check( array( '/plugins/utmkeeperflow/assets/js/admin-reset.js', array(), UTMKEEPERFLOW_VERSION, true ) === $calls['enqueue_args'], 'Reset script must be dependency-free and footer-loaded from the plugin' );
 
 $defaults = utmkeeperflow_default_settings();
 check( '0' === $defaults['enabled'], 'Plugin must default to disabled' );
@@ -251,8 +266,10 @@ check( false !== strpos( $html, 'Disabled by default.' ) && false !== strpos( $h
 check( false !== strpos( $html, 'external HTTPS links' ) && false !== strpos( $html, 'utm-keeper class' ), 'Settings help must explain exact-host and class targeting' );
 check( false !== strpos( $html, 'may contain personal data' ) && false !== strpos( $html, 'may log forwarded URLs' ) && false !== strpos( $html, 'privacy and consent requirements' ), 'Settings help must warn about privacy responsibilities' );
 check( false !== strpos( $html, 'No external plugin service or account is required' ), 'Settings help must not suggest an external dependency' );
-check( false !== strpos( $html, "localStorage.removeItem('utmkeeperflow_attribution')" ) && false !== strpos( $html, 'No reset button is available' ) && false !== strpos( $html, "other visitors&#039; browsers" ), 'Settings help must accurately scope manual browser-local reset' );
-foreach ( array( 'Disabled by default.', 'Campaign values may contain personal data', 'No reset button is available.' ) as $help_start ) {
+check( false !== strpos( $html, 'id="utmkeeperflow_reset"' ) && false !== strpos( $html, 'type="button"' ) && false !== strpos( $html, 'aria-describedby="utmkeeperflow_reset_help"' ), 'Reset must be a labeled, non-submit button with linked instructions' );
+check( false !== strpos( $html, 'same protocol, hostname, and port' ) && false !== strpos( $html, "other visitors&#039; browsers" ) && false !== strpos( $html, 'does not change saved settings' ), 'Reset guidance must describe current-origin-only scope' );
+check( false !== strpos( $html, 'role="status" aria-live="polite"' ) && false !== strpos( $html, 'data-success=' ) && false !== strpos( $html, 'data-error=' ), 'Reset must provide accessible, translatable feedback' );
+foreach ( array( 'Disabled by default.', 'Campaign values may contain personal data', 'For testing or to start fresh', 'UTM Keeper attribution was cleared', 'Could not clear attribution', 'Clear attribution in this browser' ) as $help_start ) {
 	check( 1 === count( array_filter( $translated_texts, static function ( $text ) use ( $help_start ) {
 		return 0 === strpos( $text, $help_start );
 	} ) ), 'Settings help must be translatable in the plugin text domain' );
@@ -262,6 +279,7 @@ ob_start();
 utmkeeperflow_render_settings_page();
 $translated_html = ob_get_clean();
 check( false !== strpos( $translated_html, '&lt;script&gt;alert(&quot;translation&quot;)&lt;/script&gt;' ) && false === strpos( $translated_html, '<script>' ), 'Translated help must be escaped' );
+check( false !== strpos( $translated_html, 'data-success="&quot; onfocus=&quot;alert(1)"' ) && false === strpos( $translated_html, 'onfocus="alert(1)"' ), 'Translated reset messages must be escaped as attributes' );
 $inject_translation = false;
 check( 'utmkeeperflow' === $calls['nonce_group'], 'Settings API nonce missing' );
 check( 'utmkeeperflow' === $calls['render_sections'], 'Settings controls not rendered via Settings API' );

@@ -6,9 +6,13 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Preserve selected campaign parameters in the visitor's browser and pass them only to explicitly targeted external HTTPS links.
+Keep UTM attribution across pages and pass it to booking or checkout links you choose.
 
 == Description ==
+
+Visitors arrive with campaign tags, browse a few pages, then click to book or buy. Those tags often disappear before they reach the destination. UTM Keeper keeps selected values in the visitor's browser and passes them only to conversion links you choose.
+
+= How it works =
 
 UTM Keeper is disabled by default. Once an administrator enables it, the plugin stores selected campaign parameters in one expiring localStorage record for this site's browser origin. No plugin account, external service, cookies, or runtime packages are required. The plugin does not create server-side visitor records or send attribution to a plugin service; clicking a targeted link sends the resulting URL to that destination through normal browser navigation.
 
@@ -20,7 +24,7 @@ Only external HTTPS links to an exact configured DNS hostname or links marked wi
 
 Campaign parameters can contain personal data. Forwarded URLs may be logged by destination servers and other intermediaries. Site owners are responsible for their own privacy notices, consent requirements, and destination practices. Enabling this plugin is not a consent mechanism and does not guarantee compliance. The plugin does not provide analytics, form-field population, consent management, or automatic forwarding to all outbound links.
 
-There is no in-plugin reset button in this version. To remove only this plugin's attribution record for the current browser profile and this site's origin, open a page on the site and run `localStorage.removeItem('utmkeeperflow_attribution')` in its browser console. This does not clear saved WordPress settings or records in other visitors' browsers. Clearing all site data through browser settings has a broader effect and may remove unrelated site data.
+For testing or to start fresh, use the "Clear attribution in this browser" button under Settings > UTM Keeper. It removes only this plugin's localStorage record for the current browser profile and the admin page's origin; it does not change saved settings, unrelated site data, or other visitors' browsers. The button works even when the plugin is disabled, and reports if browser storage is unavailable. If the public site uses a different protocol, hostname, or port from the admin page, its storage is separate and this button cannot clear it. On that public site's origin, you can instead run `localStorage.removeItem('utmkeeperflow_attribution')` in the browser console. Visiting a campaign URL again after reset can capture fresh attribution.
 
 Automated JavaScript and PHP shim checks cover the described behavior and settings contract. Live WordPress integration and Plugin Check verification remain pending; no WordPress "Tested up to" claim is made yet.
 
@@ -41,7 +45,7 @@ No. Capture uses this site's browser localStorage; the plugin makes no external 
 
 = Can I reset attribution for all visitors from the settings page? =
 
-No. There is no in-plugin reset control. The console command in Privacy and limitations removes only the record for this site's origin in the current browser profile. It cannot clear data in other visitors' browsers.
+No. The reset button affects only this plugin's record in the current browser profile at the admin page's origin; it cannot clear data in other visitors' browsers or at a different site origin.
 
 = Why did a link remain unchanged? =
 

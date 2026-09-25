@@ -7,7 +7,7 @@
 
 /**
  * Plugin Name: UTM Keeper
- * Description: Preserve campaign parameters and pass them to selected conversion links.
+ * Description: Keep UTM attribution when visitors browse before booking or buying.
  * Version: 0.1.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -235,6 +235,27 @@ function utmkeeperflow_add_settings_page() {
 add_action( 'admin_menu', 'utmkeeperflow_add_settings_page' );
 
 /**
+ * Load the local reset handler only on the administrator settings page.
+ *
+ * @param string $hook_suffix Current admin page hook.
+ * @return void
+ */
+function utmkeeperflow_enqueue_admin_reset( $hook_suffix ) {
+	if ( 'settings_page_utmkeeperflow' !== $hook_suffix || ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'utmkeeperflow-admin-reset',
+		plugins_url( 'assets/js/admin-reset.js', __FILE__ ),
+		array(),
+		UTMKEEPERFLOW_VERSION,
+		true
+	);
+}
+add_action( 'admin_enqueue_scripts', 'utmkeeperflow_enqueue_admin_reset' );
+
+/**
  * Render the settings form. options.php validates the nonce and capability on save.
  *
  * @return void
@@ -248,7 +269,6 @@ function utmkeeperflow_render_settings_page() {
 		<h1><?php esc_html_e( 'UTM Keeper', 'utmkeeperflow' ); ?></h1>
 		<p><?php esc_html_e( 'Disabled by default. When enabled, valid selected campaign values replace the whole previous browser-local set on a new campaign visit. Visits without valid selected values keep the set until its fixed expiry. Only eligible external HTTPS links to exact configured hostnames or links marked with the utm-keeper class receive missing values when clicked.', 'utmkeeperflow' ); ?></p>
 		<p><?php esc_html_e( 'Campaign values may contain personal data, and destination servers may log forwarded URLs. Enabling this plugin does not provide consent or ensure privacy compliance; site owners are responsible for their own privacy and consent requirements. No external plugin service or account is required.', 'utmkeeperflow' ); ?></p>
-		<p><?php esc_html_e( 'No reset button is available. To clear attribution only for this site in your current browser, run the following in the browser console on this site; this does not clear other visitors\' browsers or change saved settings:', 'utmkeeperflow' ); ?> <code>localStorage.removeItem('utmkeeperflow_attribution')</code></p>
 		<?php settings_errors(); ?>
 		<form action="options.php" method="post">
 			<?php
@@ -257,6 +277,10 @@ function utmkeeperflow_render_settings_page() {
 			submit_button();
 			?>
 		</form>
+		<h2><?php esc_html_e( 'Browser-local attribution', 'utmkeeperflow' ); ?></h2>
+		<p id="utmkeeperflow_reset_help"><?php esc_html_e( 'For testing or to start fresh, clear only UTM Keeper attribution in this browser on this site. This does not change saved settings or clear other visitors\' browsers. The public site must use the same protocol, hostname, and port as this admin page; otherwise its browser storage is separate.', 'utmkeeperflow' ); ?></p>
+		<button type="button" class="button" id="utmkeeperflow_reset" aria-describedby="utmkeeperflow_reset_help" data-success="<?php echo esc_attr( __( 'UTM Keeper attribution was cleared for this browser and site origin.', 'utmkeeperflow' ) ); ?>" data-error="<?php echo esc_attr( __( 'Could not clear attribution because browser storage is unavailable.', 'utmkeeperflow' ) ); ?>"><?php esc_html_e( 'Clear attribution in this browser', 'utmkeeperflow' ); ?></button>
+		<p id="utmkeeperflow_reset_status" role="status" aria-live="polite"></p>
 	</div>
 	<?php
 }
