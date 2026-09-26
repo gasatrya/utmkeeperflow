@@ -149,8 +149,8 @@ UTM Keeper should not become a tracking or analytics system.
 It should:
 
 - Store only configured campaign parameters
-- Avoid storing personal information
-- Avoid sending data to an external service
+- Treat configured campaign values as potentially personal data; site owners must provide appropriate privacy notices and address consent requirements
+- Avoid sending data to an external plugin service (targeted destination links still receive forwarded values through normal navigation)
 - Perform its work locally
 - Provide a clear retention policy
 
