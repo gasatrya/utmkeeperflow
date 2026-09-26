@@ -14,6 +14,7 @@
     },
     "scripts": {
         "lint": "@php -l utmkeeperflow.php",
-        "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist"
+        "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist",
+        "pot": "wp i18n make-pot . languages/utmkeeperflow.pot --slug=utmkeeperflow --domain=utmkeeperflow --exclude=tests,vendor,node_modules"
     }
 }
