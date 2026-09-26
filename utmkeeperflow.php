@@ -7,12 +7,15 @@
 
 /**
  * Plugin Name: UTM Keeper
+ * Plugin URI: https://gasatrya.com/wp-plugins/utmkeeperflow/
  * Description: Keep UTM attribution when visitors browse before booking or buying.
  * Version: 0.1.0
- * Requires at least: 6.0
+ * Requires at least: 6.5
  * Requires PHP: 7.4
- * Author: UTM Keeper
+ * Author: Ga Satrya
+ * Author URI: https://gasatrya.com/
  * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: utmkeeperflow
  */
 

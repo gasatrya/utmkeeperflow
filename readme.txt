@@ -1,6 +1,8 @@
 === UTM Keeper ===
+Contributors: gasatrya
+Donate link: https://paypal.me/satrya
 Tags: utm, attribution, campaigns, links, marketing
-Requires at least: 6.0
+Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 0.1.0
@@ -31,7 +33,7 @@ Automated JavaScript and PHP shim checks cover the described behavior and settin
 
 == Installation ==
 
-1. Install the plugin in `wp-content/plugins/utmkeeperflow/` and activate UTM Keeper in WordPress Plugins. Requires WordPress 6.0 or later and PHP 7.4 or later.
+1. Install the plugin in `wp-content/plugins/utmkeeperflow/` and activate UTM Keeper in WordPress Plugins. Requires WordPress 6.5 or later and PHP 7.4 or later.
 2. Open Settings > UTM Keeper as an administrator. The plugin remains disabled until you select Enable UTM Keeper and save.
 3. Select which supported campaign keys to capture. By default, five UTM keys are checked; gclid and fbclid are unchecked.
 4. Enter one exact DNS destination hostname per line, for example `bookings.example.com`. Do not include `https://`, a port, path, wildcard, or IP address. `bookings.example.com` does not match `other.bookings.example.com` or `bookings.example.com.evil.test`.
