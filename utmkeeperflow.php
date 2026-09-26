@@ -8,7 +8,7 @@
 /**
  * Plugin Name: UTM Keeper
  * Plugin URI: https://gasatrya.com/wp-plugins/utmkeeperflow/
- * Description: Keep UTM attribution when visitors browse before booking or buying.
+ * Description: Remember where visitors came from and pass campaign tags to booking or checkout links you choose.
  * Version: 0.1.0
  * Requires at least: 6.5
  * Requires PHP: 7.4

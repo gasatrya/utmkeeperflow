@@ -28,7 +28,7 @@ msgstr ""
 
 #. Description of the plugin
 #: utmkeeperflow.php
-msgid "Keep UTM attribution when visitors browse before booking or buying."
+msgid "Remember where visitors came from and pass campaign tags to booking or checkout links you choose."
 msgstr ""
 
 #. Author of the plugin

@@ -9,11 +9,22 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Keep UTM attribution across pages and pass it to booking or checkout links you choose.
+Remember where visitors came from and pass campaign tags to booking or checkout links you choose.
 
 == Description ==
 
-Visitors arrive with campaign tags, browse a few pages, then click to book or buy. Those tags often disappear before they reach the destination. UTM Keeper keeps selected values in the visitor's browser and passes them only to conversion links you choose.
+Someone clicks your newsletter link, browses a few pages on your site, then clicks through to an external booking site. The campaign tags are no longer in the page URL. How will the booking site know the visitor came from your newsletter?
+
+UTM Keeper saves selected campaign tags in the visitor's browser. When they click an external link you choose, it adds those tags to the destination URL. This helps the destination attribute bookings or purchases to your campaigns. It does not keep the tags visible in your site's page URLs or provide analytics itself.
+
+= Example: newsletter to booking =
+
+A visitor lands on your site with `?utm_source=newsletter&utm_campaign=spring`. After browsing pages without those tags in their URLs, they click your configured link to `https://bookings.example.com/book`. UTM Keeper adds `utm_source=newsletter&utm_campaign=spring` to the booking URL, so the booking site can identify the campaign.
+
+= Other use cases =
+
+* An ad brings someone to your site; they later follow your selected link to an external checkout.
+* A social campaign brings someone to your site; they later follow your selected link to an external registration page.
 
 = How it works =
 
