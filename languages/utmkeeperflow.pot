@@ -17,7 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: utmkeeperflow.php
 #: utmkeeperflow.php:236
-#: utmkeeperflow.php:272
+#: utmkeeperflow.php:278
 msgid "UTM Keeper"
 msgstr ""
 
@@ -70,46 +70,66 @@ msgstr ""
 msgid "Retention (days)"
 msgstr ""
 
-#: utmkeeperflow.php:273
+#: utmkeeperflow.php:279
 msgid "Disabled by default. When enabled, valid selected campaign values replace the whole previous browser-local set on a new campaign visit. Visits without valid selected values keep the set until its fixed expiry. Only eligible external HTTPS links to exact configured hostnames or links marked with the utm-keeper class receive missing values when clicked."
 msgstr ""
 
-#: utmkeeperflow.php:274
+#: utmkeeperflow.php:280
 msgid "Campaign values may contain personal data, and destination servers may log forwarded URLs. Enabling this plugin does not provide consent or ensure privacy compliance; site owners are responsible for their own privacy and consent requirements. No external plugin service or account is required."
 msgstr ""
 
-#: utmkeeperflow.php:283
+#: utmkeeperflow.php:291
 msgid "Browser-local attribution"
 msgstr ""
 
-#: utmkeeperflow.php:284
+#: utmkeeperflow.php:292
 msgid "For testing or to start fresh, clear only UTM Keeper attribution in this browser on this site. This does not change saved settings or clear other visitors' browsers. The public site must use the same protocol, hostname, and port as this admin page; otherwise its browser storage is separate."
 msgstr ""
 
-#: utmkeeperflow.php:285
+#: utmkeeperflow.php:293
 msgid "UTM Keeper attribution was cleared for this browser and site origin."
 msgstr ""
 
-#: utmkeeperflow.php:285
+#: utmkeeperflow.php:293
 msgid "Could not clear attribution because browser storage is unavailable."
 msgstr ""
 
-#: utmkeeperflow.php:285
+#: utmkeeperflow.php:293
 msgid "Clear attribution in this browser"
 msgstr ""
 
+#: utmkeeperflow.php:297
+msgid "Need a WordPress Developer?"
+msgstr ""
+
+#: utmkeeperflow.php:298
+msgid "Need something your current plugins can’t do? I build custom WordPress plugins, themes, and fast websites tailored to your business."
+msgstr ""
+
+#: utmkeeperflow.php:299
+msgid "Hire Me"
+msgstr ""
+
 #: utmkeeperflow.php:301
+msgid "Buy me a coffee"
+msgstr ""
+
+#: utmkeeperflow.php:302
+msgid "Rate this plugin"
+msgstr ""
+
+#: utmkeeperflow.php:320
 msgid "Capture configured campaign parameters in this browser and forward them on eligible link activation."
 msgstr ""
 
-#: utmkeeperflow.php:322
+#: utmkeeperflow.php:341
 msgid "Only these fixed keys are supported. Click IDs (gclid and fbclid) are opt-in."
 msgstr ""
 
-#: utmkeeperflow.php:335
+#: utmkeeperflow.php:354
 msgid "One exact DNS hostname per line (for example, bookings.example.com). No URLs, ports, wildcards, IP addresses, or subdomain matching. Empty by default."
 msgstr ""
 
-#: utmkeeperflow.php:348
+#: utmkeeperflow.php:367
 msgid "From 1 to 90 days; default 30. Browser-local campaign data expires this many days after capture."
 msgstr ""

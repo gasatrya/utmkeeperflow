@@ -1,0 +1,62 @@
+/* Settings form and developer promotion, scoped to the UTM Keeper admin page. */
+.utmkeeperflow-settings-layout {
+	display: grid;
+	gap: 24px;
+	margin-top: 20px;
+}
+
+.utmkeeperflow-settings-main {
+	min-width: 0;
+}
+
+.utmkeeperflow-settings-sidebar {
+	box-sizing: border-box;
+	min-width: 0;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+	align-self: start;
+}
+
+.utmkeeperflow-settings-sidebar h2 {
+	margin: 0;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+}
+
+.utmkeeperflow-hire-link {
+	box-sizing: border-box;
+	width: 100%;
+	text-align: center;
+}
+
+.utmkeeperflow-sidebar-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding-top: 16px;
+	border-top: 1px solid #eee;
+}
+
+.utmkeeperflow-sidebar-links > span {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.utmkeeperflow-sidebar-links .dashicons-coffee {
+	color: #c9a96e;
+}
+
+.utmkeeperflow-sidebar-links .dashicons-star-filled {
+	color: #ffb900;
+}
+
+@media (min-width: 1100px) {
+	.utmkeeperflow-settings-layout {
+		grid-template-columns: minmax(0, 1fr) 320px;
+	}
+}

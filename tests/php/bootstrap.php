@@ -139,6 +139,12 @@ function wp_enqueue_script( $handle, ...$args ) {
 	$calls['enqueue_args'] = $args;
 }
 
+function wp_enqueue_style( $handle, ...$args ) {
+	global $calls;
+	$calls['style']      = $handle;
+	$calls['style_args'] = $args;
+}
+
 function check( $condition, $message ) {
 	if ( ! $condition ) {
 		throw new RuntimeException( $message );
@@ -162,15 +168,18 @@ check( 'manage_options' === $calls['page'][2], 'Settings page is not restricted'
 check( 'utmkeeperflow_render_settings_page' === $calls['page'][4], 'Wrong page renderer' );
 check( 'utmkeeperflow_enqueue_admin_reset' === $calls['hooks']['admin_enqueue_scripts'], 'Admin reset hook missing' );
 $calls['enqueue'] = null;
+$calls['style']   = null;
 utmkeeperflow_enqueue_admin_reset( 'dashboard' );
-check( null === $calls['enqueue'], 'Admin reset script must not load on unrelated pages' );
+check( null === $calls['enqueue'] && null === $calls['style'], 'Admin assets must not load on unrelated pages' );
 $can_admin = false;
 utmkeeperflow_enqueue_admin_reset( 'settings_page_utmkeeperflow' );
-check( null === $calls['enqueue'], 'Admin reset script must require manage_options' );
+check( null === $calls['enqueue'] && null === $calls['style'], 'Admin assets must require manage_options' );
 $can_admin = true;
 utmkeeperflow_enqueue_admin_reset( 'settings_page_utmkeeperflow' );
 check( 'utmkeeperflow-admin-reset' === $calls['enqueue'], 'Reset script must load on settings page even while disabled' );
 check( array( '/plugins/utmkeeperflow/assets/js/admin-reset.js', array(), UTMKEEPERFLOW_VERSION, true ) === $calls['enqueue_args'], 'Reset script must be dependency-free and footer-loaded from the plugin' );
+check( 'utmkeeperflow-admin-settings' === $calls['style'], 'Settings stylesheet must load on settings page' );
+check( array( '/plugins/utmkeeperflow/assets/css/admin-settings.css', array(), UTMKEEPERFLOW_VERSION ) === $calls['style_args'], 'Settings stylesheet must load from this plugin' );
 
 $defaults = utmkeeperflow_default_settings();
 check( '0' === $defaults['enabled'], 'Plugin must default to disabled' );
@@ -266,10 +275,15 @@ check( false !== strpos( $html, 'Disabled by default.' ) && false !== strpos( $h
 check( false !== strpos( $html, 'external HTTPS links' ) && false !== strpos( $html, 'utm-keeper class' ), 'Settings help must explain exact-host and class targeting' );
 check( false !== strpos( $html, 'may contain personal data' ) && false !== strpos( $html, 'may log forwarded URLs' ) && false !== strpos( $html, 'privacy and consent requirements' ), 'Settings help must warn about privacy responsibilities' );
 check( false !== strpos( $html, 'No external plugin service or account is required' ), 'Settings help must not suggest an external dependency' );
+check( false !== strpos( $html, 'class="utmkeeperflow-settings-layout"' ) && false !== strpos( $html, '<aside class="utmkeeperflow-settings-sidebar" aria-labelledby="utmkeeperflow-sidebar-title">' ), 'Settings page must include a labeled promotion sidebar' );
+check( false !== strpos( $html, 'Need a WordPress Developer?' ) && false !== strpos( $html, 'fast websites tailored to your business' ), 'Developer promotion copy missing' );
+check( false !== strpos( $html, 'https://gasatrya.com/?utm_source=plugin&amp;utm_medium=utmkeeperflow-sidebar' ) && false !== strpos( $html, 'https://gasatrya.com/donate/?utm_source=plugin&amp;utm_medium=utmkeeperflow-sidebar' ), 'Developer promotion links must use this plugin campaign' );
+check( false !== strpos( $html, 'https://wordpress.org/support/plugin/utmkeeperflow/reviews/#new-post' ) && false === strpos( $html, 'support/plugin/buttonflow/reviews/' ), 'Review link must point to UTM Keeper' );
+check( 3 === substr_count( $html, 'target="_blank" rel="noopener noreferrer"' ), 'Promotion links must open safely in a new tab' );
 check( false !== strpos( $html, 'id="utmkeeperflow_reset"' ) && false !== strpos( $html, 'type="button"' ) && false !== strpos( $html, 'aria-describedby="utmkeeperflow_reset_help"' ), 'Reset must be a labeled, non-submit button with linked instructions' );
 check( false !== strpos( $html, 'same protocol, hostname, and port' ) && false !== strpos( $html, "other visitors&#039; browsers" ) && false !== strpos( $html, 'does not change saved settings' ), 'Reset guidance must describe current-origin-only scope' );
 check( false !== strpos( $html, 'role="status" aria-live="polite"' ) && false !== strpos( $html, 'data-success=' ) && false !== strpos( $html, 'data-error=' ), 'Reset must provide accessible, translatable feedback' );
-foreach ( array( 'Disabled by default.', 'Campaign values may contain personal data', 'For testing or to start fresh', 'UTM Keeper attribution was cleared', 'Could not clear attribution', 'Clear attribution in this browser' ) as $help_start ) {
+foreach ( array( 'Disabled by default.', 'Campaign values may contain personal data', 'For testing or to start fresh', 'UTM Keeper attribution was cleared', 'Could not clear attribution', 'Clear attribution in this browser', 'Need a WordPress Developer?', 'Need something your current plugins', 'Hire Me', 'Buy me a coffee', 'Rate this plugin' ) as $help_start ) {
 	check( 1 === count( array_filter( $translated_texts, static function ( $text ) use ( $help_start ) {
 		return 0 === strpos( $text, $help_start );
 	} ) ), 'Settings help must be translatable in the plugin text domain' );
