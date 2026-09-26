@@ -2,7 +2,7 @@
 
 Keep UTM attribution when visitors browse before booking or buying. See [the concept](docs/CONCEPT.md) and [approved MVP plan](docs/MVP-PLAN.md).
 
-**Current status:** Browser-local capture, targeted link forwarding, and an administrator's current-browser reset button are implemented and smoke-tested on local WordPress 7.1.2 / PHP 8.2.29. The plugin starts disabled. Settings → UTM Keeper lets administrators enable it and configure supported keys, exact destination hostnames, and retention. See [the WordPress readme](readme.txt) for installation, targeting examples, privacy implications, and reset limitations. The [release-verification record](docs/RELEASE-VERIFICATION.md) gives the manual matrix, checks, Plugin Check scope, and remaining review limitations.
+**Current status:** Browser-local capture, targeted link forwarding, and an administrator's current-browser reset button are implemented and smoke-tested on local WordPress 7.1.2 / PHP 8.2.29. The plugin starts disabled. Settings → UTM Keeper lets administrators enable it and configure supported keys, exact destination hostnames, and retention. See [the WordPress readme](readme.txt) for installation, targeting examples, privacy implications, and reset limitations. Development checks and a WordPress smoke-test matrix are below; MVP completion is tracked in [issue #1](https://github.com/gasatrya/utmkeeperflow/issues/1).
 
 ## Development checks
 
