@@ -5,7 +5,7 @@
   "description": "Dependency-free JavaScript checks for the UTM Keeper WordPress plugin",
   "scripts": {
     "test": "node --test tests/js/*.test.cjs",
-    "build:zip": "bash scripts/build-zip.sh"
+    "build": "node scripts/build-zip.cjs"
   },
   "engines": {
     "node": ">=18"

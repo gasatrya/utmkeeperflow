@@ -34,4 +34,4 @@ The PHP checks use WordPress shims, so also test the plugin in a real WordPress 
 
 ## Build the plugin ZIP
 
-After committing your changes, run `npm run build:zip` (or `bash scripts/build-zip.sh`). It creates `dist/utmkeeperflow.zip` with the `utmkeeperflow/` folder inside, ready to upload in WordPress. The archive uses committed files from `HEAD`; `.gitattributes` excludes tests, development tools, docs, and the build script. Uncommitted changes are not included.
+After committing your changes, run `pnpm build:zip` (or `npm run build:zip`). It creates `dist/utmkeeperflow.zip` with the `utmkeeperflow/` folder inside, ready to upload in WordPress. The archive uses committed files from `HEAD`; `.gitattributes` excludes tests, development tools, docs, and the build script. Uncommitted changes are not included.
