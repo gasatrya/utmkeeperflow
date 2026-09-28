@@ -1,0 +1,22 @@
+name: Plugin assets update
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Playground blueprint JSON
+        run: python3 -m json.tool .wordpress-org/blueprints/blueprint.json > /dev/null
+      - name: Update WordPress.org assets without a version release
+        uses: 10up/action-wordpress-plugin-asset-update@2.2.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: utmkeeperflow
+          IGNORE_OTHER_FILES: 'true'
