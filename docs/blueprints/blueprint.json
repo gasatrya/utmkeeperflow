@@ -1,0 +1,23 @@
+{
+  "landingPage": "/wp-admin/options-general.php?page=utmkeeperflow",
+  "features": {
+    "networking": true
+  },
+  "steps": [
+    {
+        "step": "login",
+        "username": "admin",
+        "password": "password"
+      },
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "utmkeeperflow"
+      },
+      "options": {
+        "activate": true
+      }
+    }
+  ]
+}

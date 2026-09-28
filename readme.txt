@@ -40,7 +40,7 @@ Campaign parameters can contain personal data. Forwarded URLs may be logged by d
 
 For testing or to start fresh, use the "Clear attribution in this browser" button under Settings > UTM Keeper. It removes only this plugin's localStorage record for the current browser profile and the admin page's origin; it does not change saved settings, unrelated site data, or other visitors' browsers. The button works even when the plugin is disabled, and reports if browser storage is unavailable. If the public site uses a different protocol, hostname, or port from the admin page, its storage is separate and this button cannot clear it. On that public site's origin, you can instead run `localStorage.removeItem('utmkeeperflow_attribution')` in the browser console. Visiting a campaign URL again after reset can capture fresh attribution.
 
-Automated JavaScript and PHP shim checks cover the described behavior and settings contract. Local integration was exercised on WordPress 7.1.2 with PHP 8.2.29; the "Tested up to" header reflects only the locally verified WordPress 7.1 line. See the release-verification notes in the repository for the matrix and Plugin Check scope. Compatibility with other WordPress/PHP versions is not established by this single environment.
+Automated JavaScript and PHP shim checks cover the described behavior and settings contract. Local integration was exercised on WordPress 7.1.2 with PHP 8.2.29; the "Tested up to" header reflects only the locally verified WordPress 7.1 line. Compatibility with other WordPress/PHP versions is not established by this single environment.
 
 == Installation ==
 
@@ -50,6 +50,10 @@ Automated JavaScript and PHP shim checks cover the described behavior and settin
 4. Enter one exact DNS destination hostname per line, for example `bookings.example.com`. Do not include `https://`, a port, path, wildcard, or IP address. `bookings.example.com` does not match `other.bookings.example.com` or `bookings.example.com.evil.test`.
 5. Alternatively, explicitly mark a link in your site content, for example `<a href="https://checkout.example.com/book" class="utm-keeper">Book now</a>`. The HTTPS, external, no-credentials, and no-download restrictions still apply even to marked links.
 6. Set retention (1-90 days), save, and test by visiting `/?utm_source=newsletter&utm_campaign=spring`, then another page without campaign parameters before clicking an eligible conversion link. The destination receives only missing selected values. For example, `https://bookings.example.com/book?utm_source=existing#step` keeps `utm_source=existing` and adds `utm_campaign=spring` before `#step`.
+
+== Screenshots ==
+
+1. Example UTM Keeper settings with campaign parameters and an illustrative destination hostname; configure your own destination before use.
 
 == Frequently Asked Questions ==
 

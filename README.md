@@ -34,4 +34,14 @@ The PHP checks use WordPress shims, so also test the plugin in a real WordPress 
 
 ## Build the plugin ZIP
 
-After committing your changes, run `pnpm build:zip` (or `npm run build:zip`). It creates `dist/utmkeeperflow.zip` with the `utmkeeperflow/` folder inside, ready to upload in WordPress. The archive uses committed files from `HEAD`; `.gitattributes` excludes tests, development tools, docs, and the build script. Uncommitted changes are not included.
+After committing your changes, run `pnpm build` (or `npm run build`). It creates `dist/utmkeeperflow.zip` with the `utmkeeperflow/` folder inside, ready to upload in WordPress. The archive uses committed files from `HEAD`; `.gitattributes` excludes tests, development tools, docs, release artwork, and the build script. Uncommitted changes are not included.
+
+## Publish to WordPress.org
+
+The GitHub workflow in `.github/workflows/ci.yml` runs JavaScript and PHP checks on pull requests, `main`, and release tags. It deploys to the `utmkeeperflow` WordPress.org SVN repository **only** when a numeric version tag (for example `0.1.0`) is pushed and all checks pass. The tag, plugin header `Version`, and `readme.txt` `Stable tag` must match. Do not reuse a version already published to WordPress.org.
+
+1. In the GitHub repository's Actions secrets, set `SVN_USERNAME` and `SVN_PASSWORD` for a WordPress.org account authorized to commit to this plugin's SVN repository. Never commit credentials. Use a WordPress.org SVN-specific password from your account settings where available.
+2. Commit and push the release contents, including `.wordpress-org/icon-128x128.png`, `.wordpress-org/icon-256x256.png`, and any screenshots. The `.wordpress-org` files go to the SVN root `assets/`, **not** plugin `trunk/` or the installable ZIP. `docs/blueprints/blueprint.json` is a development-only Playground blueprint, not artwork.
+3. Verify the tests pass on `main`, then create and push the version tag from that exact commit: `git tag 0.1.0 && git push origin 0.1.0`. This starts the deployment; inspect the Actions run and the WordPress.org listing afterward. Do not push the tag before setting the secrets and confirming the slug/version with WordPress.org.
+
+The icon source is `scripts/generate-icon.py`. To regenerate the two PNG sizes for a later release, install Pillow in your development Python environment and run `python scripts/generate-icon.py`.
